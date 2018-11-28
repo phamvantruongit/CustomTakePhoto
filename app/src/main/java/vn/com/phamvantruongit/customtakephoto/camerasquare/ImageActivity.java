@@ -50,12 +50,12 @@ public class ImageActivity extends Activity implements View.OnClickListener {
     private String img_name = "";
 
     private boolean status = false;
-    private String img_url;
+    private String img_url, url;
     private boolean is_delete = false;
     private Button btnSave, btnAddText;
     EditText edMessage;
     TextView tvText;
-    TextView tv_Text;
+    private String message = "";
 
 
     @Override
@@ -63,13 +63,14 @@ public class ImageActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_image);
-        button = (ImageView) findViewById(R.id.button);
-        button_close = (ImageButton) findViewById(R.id.button_close);
-        button_back = (ImageButton) findViewById(R.id.camera_back);
+        button = findViewById(R.id.button);
+        button_close = findViewById(R.id.button_close);
+        button_back = findViewById(R.id.camera_back);
         img = findViewById(R.id.img);
         tvText = findViewById(R.id.tvText);
         btnAddText = findViewById(R.id.btnAddText);
         btnSave = findViewById(R.id.btnSave);
+        edMessage = findViewById(R.id.editText);
 
         button_close.setOnClickListener(this);
         button_back.setOnClickListener(this);
@@ -79,7 +80,6 @@ public class ImageActivity extends Activity implements View.OnClickListener {
         img_url = intent.getExtras().getString("image_url");
         setImageView(img_url);
 
-        edMessage = (EditText) findViewById(R.id.editText);
 
         btnAddText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +87,10 @@ public class ImageActivity extends Activity implements View.OnClickListener {
                 if (edMessage.getVisibility() == View.GONE) {
                     edMessage.setVisibility(View.VISIBLE);
 
+                }
+
+                if (message != null && message != "") {
+                    setImageView(img_url);
                 }
 
             }
@@ -102,7 +106,7 @@ public class ImageActivity extends Activity implements View.OnClickListener {
                     if (mFile.exists()) {
                         bitmap = BitmapFactory.decodeFile(path);
                         DrawTextToBitmap(bitmap, "はじめまして。私はアンナです。はじめまして。私はアンナです はじめまして。私はアンナです はじめまして。私はアンナです。はじめまして。私はアンナです はじめまして。私はアンナです");
-
+                        //DrawTextToBitmap(bitmap, edMessage.getText().toString());
                     }
 
                 } else {
@@ -155,10 +159,11 @@ public class ImageActivity extends Activity implements View.OnClickListener {
             super.handleMessage(msg);
             if (msg.what == 1) {
                 Toast.makeText(ImageActivity.this, "Save image OK", Toast.LENGTH_SHORT).show();
-                File file = new File(img_url);
-                if (file.exists()) {
-                    file.delete();
-                }
+                Intent intent=new Intent();
+                intent.putExtra("img_url",img_url);
+                setResult(CameraSquareActivity.RESULT_FINISH,intent);
+                ImageActivity.this.finish();
+
             }
         }
     };
@@ -197,6 +202,7 @@ public class ImageActivity extends Activity implements View.OnClickListener {
         tvText.setDrawingCacheEnabled(true);
         tvText.setTextSize(10);
         tvText.setTextColor(Color.RED);
+        this.message = message;
 
 
         int color = ContextCompat.getColor(this, R.color.color_show);
@@ -215,60 +221,16 @@ public class ImageActivity extends Activity implements View.OnClickListener {
         return bitmap;
     }
 
-//    public Bitmap DrawTextToBitmap(
-//            Bitmap bitmap,
-//            String message) {
-//
-//        android.graphics.Bitmap.Config bitmapConfig =
-//                bitmap.getConfig();
-//        if(bitmapConfig == null) {
-//            bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
-//        }
-//
-//        bitmap = bitmap.copy(bitmapConfig, true);
-//
-//        Canvas canvas = new Canvas(bitmap);
-//
-//        Paint paint = new Paint();
-//        paint.setStyle(Paint.Style.FILL);
-//        paint.setAntiAlias(true);
-//        paint.setColor(Color.BLACK);
-//
-//        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View view = inflater.inflate(R.layout.custom_layout_show, null);
-//
-//
-//        TextView tvText=view.findViewById(R.id.tvMessage);
-//        tvText.setText(message);
-//        tvText.setDrawingCacheEnabled(true);
-//        tvText.setTextSize(10);
-//        tvText.setTextColor(Color.RED);
-//
-//
-//        int color=ContextCompat.getColor(this, R.color.color_show);
-//        tvText.setBackgroundColor(color);
-//        tvText.measure(View.MeasureSpec.makeMeasureSpec(canvas.getWidth(), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(canvas.getHeight(), View.MeasureSpec.EXACTLY));
-//        tvText.layout(0, 0, tvText.getMeasuredWidth(), tvText.getMeasuredHeight());
-//
-//        canvas.drawBitmap(tvText.getDrawingCache(), 0, 450, paint);
-//        tvText.setDrawingCacheEnabled(false);
-//
-//        edMessage.setVisibility(View.GONE);
-//
-//        saveBitmap(bitmap);
-//        img.setImageBitmap(bitmap);
-//
-//        return bitmap;
-//    }
-
 
     public void saveBitmap(Bitmap bm) {
         String state = Environment.getExternalStorageState();
         if (!state.equals(Environment.MEDIA_MOUNTED)) {
             return;
         }
-
-        File file = new File(Environment.getExternalStorageDirectory() + "/EventImage/");
+        File file = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                this.getString(R.string.app_name)
+        );
         if (!file.exists()) {
             file.mkdirs();
         }

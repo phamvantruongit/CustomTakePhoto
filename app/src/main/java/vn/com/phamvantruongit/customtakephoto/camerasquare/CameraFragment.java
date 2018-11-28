@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     private Camera mCamera;
     private SquareCameraPreview mPreviewView;
     private SurfaceHolder mSurfaceHolder;
-    private boolean status=true;
+    private boolean status = true;
 
     private boolean mIsSafeToTakePhoto = false;
 
@@ -106,8 +107,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(mOrientationListener==null){
-            mOrientationListener=new CameraOrientationListener(getActivity());
+        if (mOrientationListener == null) {
+            mOrientationListener = new CameraOrientationListener(getActivity());
         }
         mOrientationListener.enable();
 
@@ -323,10 +324,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
         mImageParameters.mDisplayOrientation = displayOrientation;
         mImageParameters.mLayoutOrientation = degrees;
-        Log.d("camera",displayOrientation+"----"+mImageParameters.mDisplayOrientation+"----"+mCamera);
-        if (mCamera!=null){
+        Log.d("camera", displayOrientation + "----" + mImageParameters.mDisplayOrientation + "----" + mCamera);
+        if (mCamera != null) {
             mCamera.setDisplayOrientation(mImageParameters.mDisplayOrientation);
-        }else {
+        } else {
             startCameraPreview();
         }
     }
@@ -445,10 +446,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     @Override
     public void onResume() {
         super.onResume();
-        if (!status){
+        if (!status) {
             if (mCamera == null) {
                 restartPreview();
-                status=false;
+                status = false;
             }
         }
     }
@@ -632,17 +633,21 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     public void setRotation(int rotation) {
         this.rotation = rotation;
     }
+
     public static Bitmap bitmap;
+
     private void dialogshow() {
 
         String imgurl = ImageUtility.savePicture(getActivity(), ImageUtility.rotatePicture(getActivity(), getRotation(), getDataPic()));
         setSafeToTakePhoto(true);
         Intent intent = new Intent(getActivity(), ImageActivity.class);
-        Log.d("image_url",imgurl);
+        Log.d("image_url", imgurl);
         intent.putExtra("image_url", imgurl);
-
         getActivity().startActivityForResult(intent, CameraSquareActivity.RESULT_FINISH);
+
     }
+
+
 
     public void restartCamera2() {
         mOrientationListener.disable();
